@@ -20,4 +20,8 @@ public class UIManager : MonoBehaviour
         inventorySystem.RemoveItem(itemName, 1);
 
     }
+    public void CraftCar()
+    {
+        inventorySystem.gameObject.GetComponent<CraftingSystem>().CraftCar();
+    }
 }
