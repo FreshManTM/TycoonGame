@@ -1,13 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
     [SerializeField] InventorySystem inventorySystem;
+    [SerializeField] TextMeshProUGUI _currency_Text;
 
+    CurrencyManager _currencyManager;
     private void Start()
     {
+        _currencyManager = CurrencyManager.Instance;
+    }
+    private void Update()
+    {
+        _currency_Text.text = _currencyManager.Currency.ToString();
     }
 
     public void AddInventoryItem(string itemName)

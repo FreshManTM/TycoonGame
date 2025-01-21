@@ -13,7 +13,6 @@ public class Saver : MonoBehaviour
 
     private void Awake()
     {
-        DontDestroyOnLoad(this);
         Instance = this;
         filePath = Path.Combine(Application.persistentDataPath, "data.json");
 

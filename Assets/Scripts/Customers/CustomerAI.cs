@@ -5,32 +5,36 @@ using UnityEngine.AI;
 
 public class CustomerAI : MonoBehaviour
 {
-    private Customer _customerData;
-    private Transform _rentalPoint;
-    private Transform _exitPoint;
-    private System.Action<Customer> _onCarRentedCallback;
+    [SerializeField] NavMeshAgent _navMeshAgent;
+    [SerializeField] GameObject _model;
 
-    private enum CustomerState { MovingToRental, Renting, Leaving }
-    private CustomerState _currentState = CustomerState.MovingToRental;
 
-    [SerializeField] private NavMeshAgent _navMeshAgent; // NavMeshAgent component for movement
+    Customer _customerData;
+    BuildingSpot _assignedSpot;
+    GameObject _rentedCar;
+    Transform _rentalPoint;
+    Transform _exitPoint;
 
-    public void Initialize(Customer customerData, Transform rentalPoint, Transform exitPoint, System.Action<Customer> onCarRentedCallback)
+    enum CustomerState { MovingToRental, Renting, Leaving }
+    CustomerState _currentState = CustomerState.MovingToRental;
+
+
+    public void Initialize(Customer customerData, Transform rentalPoint, Transform exitPoint, BuildingSpot assignedSpot)
     {
         _customerData = customerData;
+        _assignedSpot = assignedSpot;
         _rentalPoint = rentalPoint;
         _exitPoint = exitPoint;
-        _onCarRentedCallback = onCarRentedCallback;
+        _currentState = CustomerState.MovingToRental;
 
-        _navMeshAgent = GetComponent<NavMeshAgent>();
         MoveTo(_rentalPoint.position);
     }
 
     private void Update()
     {
-        if (_currentState == CustomerState.Renting && !_navMeshAgent.pathPending && _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance)
+        if (_currentState == CustomerState.MovingToRental && !_navMeshAgent.pathPending && _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance)
         {
-            BeginRental();
+            RentCar();
         }
         else if (_currentState == CustomerState.Leaving && !_navMeshAgent.pathPending && _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance)
         {
@@ -46,16 +50,39 @@ public class CustomerAI : MonoBehaviour
         }
     }
 
-    private void BeginRental()
+    void RentCar()
     {
-        _currentState = CustomerState.Renting;
-        Invoke(nameof(EndRental), _customerData.RentDuration);
+        var availableSpot = BuildingSpotManager.Instance.GetAvailableSpot();
+        if (availableSpot != null)
+        {
+            print("renting + " + availableSpot);
+            _rentedCar = availableSpot.RentCar();
+            if (_rentedCar != null)
+            {
+                CurrencyManager.Instance.AddCurrency(_customerData.RentDuration * availableSpot.RentFeePerSecond); // Add rent fee to player's balance
+
+                _currentState = CustomerState.Renting;
+                _navMeshAgent.enabled = false;
+                _model.SetActive(false);
+                Invoke(nameof(ReturnCar), _customerData.RentDuration); 
+            }
+        }
+        else
+        {
+            Debug.Log("No parking spots with available cars!");
+            _currentState = CustomerState.Leaving;
+            MoveTo(_exitPoint.position);
+        }
     }
 
-    private void EndRental()
+    void ReturnCar()
     {
-        _onCarRentedCallback?.Invoke(_customerData);
+        _assignedSpot.ReturnCar(_rentedCar);
+        _navMeshAgent.enabled = true;
+        _model.SetActive(true);
+        _rentedCar = null;
         _currentState = CustomerState.Leaving;
         MoveTo(_exitPoint.position);
     }
+
 }

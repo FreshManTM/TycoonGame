@@ -5,12 +5,10 @@ using UnityEngine;
 [System.Serializable]
 public class Customer
 {
-    public float RentDuration;
-    public int RentFee;
+    public int RentDuration;
 
-    public Customer(float rentDuration, int rentFee)
+    public Customer(int rentDuration)
     {
         RentDuration = rentDuration;
-        RentFee = rentFee;
     }
 }
