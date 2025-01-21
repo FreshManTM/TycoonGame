@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerData
 {
-    public int Money;
+    public int Currency;
     public List<InventoryItem> InventoryItems = new List<InventoryItem>();
 
 }
