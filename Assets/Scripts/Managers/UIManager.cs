@@ -32,4 +32,9 @@ public class UIManager : MonoBehaviour
     {
         inventorySystem.gameObject.GetComponent<CraftingSystem>().CraftCar();
     }
+
+    public void ChangeTimeScale(float value)
+    {
+        Time.timeScale = value;
+    }
 }

@@ -8,8 +8,7 @@ public class InventoryItemUI: MonoBehaviour
     [SerializeField] string _name;
     [SerializeField] TextMeshProUGUI _quantity_Text;
 
-
-    public void SetQuantity(int quantity)
+    public void SetQuantityUI(int quantity)
     {
         _quantity_Text.text = quantity.ToString();
     }

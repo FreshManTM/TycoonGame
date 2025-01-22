@@ -1,9 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using static UnityEditor.Progress;
 
+[System.Serializable]
 public class BuildingSpot : MonoBehaviour, IBuildingSpot
 {
+    [SerializeField] int _spotID;
     [SerializeField] GameObject _carPrefab;
     [SerializeField] int _maxCars = 5; 
     [SerializeField] int _rentFeePerSecond = 1; 
@@ -20,12 +24,17 @@ public class BuildingSpot : MonoBehaviour, IBuildingSpot
     List<GameObject> _rentedCars = new List<GameObject>();
 
     ObjectPool _pool;
-
+    Saver _saver;
 
     private void Start()
     {
         _pool = ObjectPool.Instance;
-        AddCar();
+        _saver = Saver.Instance;
+        if (!LoadBuildingSpotData())
+        {
+            AddCar();
+            SaveBuildingSpotData();
+        }
     }
 
     public void AddCar()
@@ -72,5 +81,45 @@ public class BuildingSpot : MonoBehaviour, IBuildingSpot
             _rentedCars.Remove(car);
             AddCar();
         }
+    }
+    bool LoadBuildingSpotData()
+    {
+        foreach(var spotData in _saver.LoadInfo().BuildingSpotsData)
+        {
+            if(spotData.SpotID == _spotID)
+            {
+                _rentFeePerSecond = spotData.RentFeePerSecond;
+                if(spotData.AvailableCars > _availableCars.Count)
+                {
+                    var carsToAdd = spotData.AvailableCars - _availableCars.Count;
+                    for (int i = 0; i < carsToAdd; i++)
+                    {
+                        AddCar();
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void SaveBuildingSpotData()
+    {
+        var playerData = _saver.LoadInfo();
+        var curData = playerData.BuildingSpotsData.Find(i => i.SpotID == _spotID);
+        if (curData != null)
+        {
+            playerData.BuildingSpotsData.Remove(curData);
+        }
+
+        var spotData = new BuildingSpotData
+        {
+            SpotID = _spotID,
+            AvailableCars = _availableCars.Count + _rentedCars.Count,
+            RentFeePerSecond = _rentFeePerSecond
+        };
+        playerData.BuildingSpotsData.Add(spotData);
+        _saver.SaveInfo(playerData);
+
     }
 }

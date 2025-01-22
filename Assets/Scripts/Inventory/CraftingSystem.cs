@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class CraftingSystem : MonoBehaviour
 {
-    private InventorySystem _inventorySystem;
+    [SerializeField] BuildingSpotManager _buildingSpotManager;
 
+    InventorySystem _inventorySystem;
     private void Start()
     {
         _inventorySystem = GetComponent<InventorySystem>();
@@ -34,7 +35,9 @@ public class CraftingSystem : MonoBehaviour
             _inventorySystem.RemoveItem(part.Key, part.Value);
         }
 
-        //_inventorySystem.AddItem("Car", 1);
+        var spotForCar = _buildingSpotManager.FindSpotForCar();
+        spotForCar.AddCar();
+        spotForCar.SaveBuildingSpotData();
         Debug.Log("Car crafted successfully!");
         return true;
     }

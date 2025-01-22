@@ -65,7 +65,6 @@ public class CustomerAI : MonoBehaviour
                 CurrencyManager.Instance.AddCurrency(_customerData.RentDuration * _assignedSpot.RentFeePerSecond);
 
                 _currentState = CustomerState.Renting;
-                _navMeshAgent.enabled = false;
                 _model.SetActive(false);
                 Invoke(nameof(ReturnCar), _customerData.RentDuration);
             }
@@ -91,7 +90,6 @@ public class CustomerAI : MonoBehaviour
             _assignedSpot.ReturnCar(_rentedCar);
         }
 
-        _navMeshAgent.enabled = true;
         _model.SetActive(true);
         _rentedCar = null;
 

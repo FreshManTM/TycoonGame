@@ -5,6 +5,7 @@ using UnityEngine;
 public class BuildingSpotManager : MonoBehaviour
 {
     public static BuildingSpotManager Instance;
+    public List<BuildingSpot> GetAllBuildingSpots() => _buildingSpots;
 
     [SerializeField] GameObject _buildingSpotPrefab;
     [SerializeField] List<BuildingSpot> _buildingSpots = new List<BuildingSpot>();
@@ -14,29 +15,22 @@ public class BuildingSpotManager : MonoBehaviour
         Instance = this;
     }
 
+
     public BuildingSpot GetRandomSpot()
     {
         return _buildingSpots[Random.Range(0, _buildingSpots.Count)];
-        //foreach (var spot in _buildingSpots)
-        //{
-        //    if (spot.HasAvailableCars)
-        //    {
-        //        return spot;
-        //    }
-        //}
-        //return null; // No available spot with cars
     }
 
-    public BuildingSpot FindSpotForCar(GameObject car)
+    public BuildingSpot FindSpotForCar()
     {
         foreach (var spot in _buildingSpots)
         {
-            if (spot.HasSpace || spot.HasAvailableCars)
+            if (spot.HasSpace)
             {
                 return spot;
             }
         }
-        return null; // No spots found
+        return null;
     }
 
     public BuildingSpot AddNewBuildingSpot(Vector3 position)

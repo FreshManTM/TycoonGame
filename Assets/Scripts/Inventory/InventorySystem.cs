@@ -31,7 +31,7 @@ public class InventorySystem : MonoBehaviour
         //RemoveItem("Wheel", 2);
         foreach (var item in _inventoryItemsUI)
         {
-            item.SetQuantity(_inventory.Find(i => i.ItemName == item.GetName()).Quantity);
+            item.SetQuantityUI(_inventory.Find(i => i.ItemName == item.GetName()).Quantity);
         }
     }
 
@@ -90,8 +90,7 @@ public class InventorySystem : MonoBehaviour
         foreach (var itemUI in _inventoryItemsUI)
         {
             if (itemUI.GetName() == item.ItemName)
-                itemUI.SetQuantity(_inventory.Find(i => i.ItemName == itemUI.GetName()).Quantity);
-
+                itemUI.SetQuantityUI(_inventory.Find(i => i.ItemName == itemUI.GetName()).Quantity);
         }
     }
 
