@@ -6,9 +6,8 @@ using UnityEngine.AI;
 public class CustomerAI : MonoBehaviour
 {
     [SerializeField] NavMeshAgent _navMeshAgent;
+    [SerializeField] Animator _animator;
     [SerializeField] GameObject _model;
-
-
     Customer _customerData;
     BuildingSpot _assignedSpot;
     GameObject _rentedCar;
@@ -17,72 +16,93 @@ public class CustomerAI : MonoBehaviour
 
     enum CustomerState { MovingToRental, Renting, Leaving }
     CustomerState _currentState = CustomerState.MovingToRental;
+    float _pointTriggerDelay = .5f;
 
-
-    public void Initialize(Customer customerData, Transform rentalPoint, Transform exitPoint, BuildingSpot assignedSpot)
+    public void Initialize(Customer customerData, BuildingSpot assignedSpot)
     {
         _customerData = customerData;
         _assignedSpot = assignedSpot;
-        _rentalPoint = rentalPoint;
-        _exitPoint = exitPoint;
+        _rentalPoint = _assignedSpot.RentalPoint;
+        _exitPoint = _assignedSpot.ExitPoint;
         _currentState = CustomerState.MovingToRental;
 
         MoveTo(_rentalPoint.position);
     }
 
-    private void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        if (_currentState == CustomerState.MovingToRental && !_navMeshAgent.pathPending && _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance)
+        if(other.tag == "Point")
         {
-            RentCar();
-        }
-        else if (_currentState == CustomerState.Leaving && !_navMeshAgent.pathPending && _navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance)
-        {
-            ObjectPool.Instance.Despawn(gameObject);
+            if (_currentState == CustomerState.MovingToRental)
+            {
+                _animator.SetBool("Walk", false);
+                Invoke(nameof(RentCar), _pointTriggerDelay);
+            }
+            else if (_currentState == CustomerState.Leaving)
+            {
+                _animator.SetBool("Walk", false);
+                Invoke(nameof(DespawnCustomer), _pointTriggerDelay);
+            }
         }
     }
 
-    private void MoveTo(Vector3 destination)
+    void MoveTo(Vector3 destination)
     {
         if (_navMeshAgent != null)
         {
             _navMeshAgent.SetDestination(destination);
+            _animator.SetBool("Walk", true);
         }
     }
 
     void RentCar()
     {
-        var availableSpot = BuildingSpotManager.Instance.GetAvailableSpot();
-        if (availableSpot != null)
+        if (_assignedSpot != null)
         {
-            print("renting + " + availableSpot);
-            _rentedCar = availableSpot.RentCar();
+            _rentedCar = _assignedSpot.RentCar();
             if (_rentedCar != null)
             {
-                CurrencyManager.Instance.AddCurrency(_customerData.RentDuration * availableSpot.RentFeePerSecond); // Add rent fee to player's balance
+                CurrencyManager.Instance.AddCurrency(_customerData.RentDuration * _assignedSpot.RentFeePerSecond);
 
                 _currentState = CustomerState.Renting;
                 _navMeshAgent.enabled = false;
                 _model.SetActive(false);
-                Invoke(nameof(ReturnCar), _customerData.RentDuration); 
+                Invoke(nameof(ReturnCar), _customerData.RentDuration);
+            }
+            else
+            {
+                Debug.Log("No cars available at the assigned building spot!");
+                MoveTo(_exitPoint.position);
+                _currentState = CustomerState.Leaving;
             }
         }
         else
         {
-            Debug.Log("No parking spots with available cars!");
-            _currentState = CustomerState.Leaving;
+            Debug.LogWarning("Assigned building spot is null!");
             MoveTo(_exitPoint.position);
+            _currentState = CustomerState.Leaving;
         }
     }
 
     void ReturnCar()
     {
-        _assignedSpot.ReturnCar(_rentedCar);
+        if (_assignedSpot != null && _rentedCar != null)
+        {
+            _assignedSpot.ReturnCar(_rentedCar);
+        }
+
         _navMeshAgent.enabled = true;
         _model.SetActive(true);
         _rentedCar = null;
+
         _currentState = CustomerState.Leaving;
         MoveTo(_exitPoint.position);
     }
 
+
+    void DespawnCustomer()
+    {
+        ObjectPool.Instance.Despawn(gameObject);
+
+    }
 }

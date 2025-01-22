@@ -6,12 +6,19 @@ public class CurrencyManager : MonoBehaviour
 {
     public static CurrencyManager Instance;
     public int Currency { get; private set; }
+    Saver _saver;
 
     private void Awake()
     {
         Instance = this;
+             
     }
-
+    private void Start()
+    {
+        _saver = Saver.Instance;
+        Currency = _saver.LoadInfo().Currency;
+       
+    }
     public void AddCurrency(int amount)
     {
         Currency += amount;
@@ -31,8 +38,8 @@ public class CurrencyManager : MonoBehaviour
 
     void SaveCurrency()
     {
-        PlayerData playerData = Saver.Instance.LoadInfo();
+        PlayerData playerData = _saver.LoadInfo();
         playerData.Currency = Currency;
-        Saver.Instance.SaveInfo(playerData);
+        _saver.SaveInfo(playerData);
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BuildingSpot : MonoBehaviour
+public class BuildingSpot : MonoBehaviour, IBuildingSpot
 {
     [SerializeField] GameObject _carPrefab;
     [SerializeField] int _maxCars = 5; 
@@ -56,7 +56,7 @@ public class BuildingSpot : MonoBehaviour
         if (HasAvailableCars)
         {
             var car = _availableCars.Dequeue();
-            car.SetActive(false); // Hide car when rented
+            car.SetActive(false);
             _rentedCars.Add(car);
             return car;
         }
@@ -70,7 +70,7 @@ public class BuildingSpot : MonoBehaviour
         if (_rentedCars.Contains(car))
         {
             _rentedCars.Remove(car);
-            AddCar(); // Add the car back to the available queue
+            AddCar();
         }
     }
 }

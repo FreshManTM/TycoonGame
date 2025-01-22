@@ -14,16 +14,17 @@ public class BuildingSpotManager : MonoBehaviour
         Instance = this;
     }
 
-    public BuildingSpot GetAvailableSpot()
+    public BuildingSpot GetRandomSpot()
     {
-        foreach (var spot in _buildingSpots)
-        {
-            if (spot.HasAvailableCars)
-            {
-                return spot;
-            }
-        }
-        return null; // No available spot with cars
+        return _buildingSpots[Random.Range(0, _buildingSpots.Count)];
+        //foreach (var spot in _buildingSpots)
+        //{
+        //    if (spot.HasAvailableCars)
+        //    {
+        //        return spot;
+        //    }
+        //}
+        //return null; // No available spot with cars
     }
 
     public BuildingSpot FindSpotForCar(GameObject car)
