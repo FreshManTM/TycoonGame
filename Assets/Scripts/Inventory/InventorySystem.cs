@@ -48,7 +48,6 @@ public class InventorySystem : MonoBehaviour
         {
             _inventory.Add(new InventoryItem(itemName, quantity));
         }
-        Debug.Log($"{quantity} {itemName}(s) added.");
 
         UpdateUI(itemName);
 
@@ -62,8 +61,6 @@ public class InventorySystem : MonoBehaviour
         if (item != null && item.Quantity >= quantity)
         {
             item.Quantity -= quantity;
-
-            Debug.Log($"{quantity} {itemName}(s) removed.");
 
             UpdateUI(itemName);
 

@@ -31,14 +31,17 @@ public class CustomerAI : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.tag == "Point")
+        if(other.tag == "RentPoint")
         {
             if (_currentState == CustomerState.MovingToRental)
             {
                 _animator.SetBool("Walk", false);
                 Invoke(nameof(RentCar), _pointTriggerDelay);
             }
-            else if (_currentState == CustomerState.Leaving)
+        }
+        else if (other.tag == "ExitPoint")
+        {
+            if (_currentState == CustomerState.Leaving)
             {
                 _animator.SetBool("Walk", false);
                 Invoke(nameof(DespawnCustomer), _pointTriggerDelay);

@@ -8,13 +8,12 @@ public class CustomerSpawner : MonoBehaviour
     [SerializeField] Transform _spawnPoint;
     [SerializeField] float _spawnInterval = 5f;
 
-   // Queue<Customer> _customers = new Queue<Customer>();
     ObjectPool _pool;
     
     private void Start()
     {
         _pool = ObjectPool.Instance;
-        InvokeRepeating(nameof(SpawnCustomer), 0, _spawnInterval);
+        InvokeRepeating(nameof(SpawnCustomer), 1, _spawnInterval);
     }
 
     void SpawnCustomer()
@@ -26,7 +25,6 @@ public class CustomerSpawner : MonoBehaviour
         {
             int rentDuration = Random.Range(1, 5);
             var customer = new Customer(rentDuration);
-            //_customers.Enqueue(customer);
 
             var buildingSpot = BuildingSpotManager.Instance.GetRandomSpot();
             if (buildingSpot != null)
@@ -36,7 +34,7 @@ public class CustomerSpawner : MonoBehaviour
             else
             {
                 Debug.LogWarning("No available building spots for customers!");
-                _pool.Despawn(customerInstance); // Return customer to the pool if no spot available
+                _pool.Despawn(customerInstance);
             }
         }
     }

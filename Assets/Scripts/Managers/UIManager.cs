@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
@@ -9,6 +10,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI _currency_Text;
 
     CurrencyManager _currencyManager;
+    BuildingSpot _selectedBuildSpot;
     private void Start()
     {
         _currencyManager = CurrencyManager.Instance;
@@ -36,5 +38,10 @@ public class UIManager : MonoBehaviour
     public void ChangeTimeScale(float value)
     {
         Time.timeScale = value;
+    }
+
+    public void AddCar()
+    {
+        _selectedBuildSpot.AddCar();
     }
 }

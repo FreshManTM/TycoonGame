@@ -5,11 +5,11 @@ using UnityEngine;
 public class BuildingSpotManager : MonoBehaviour
 {
     public static BuildingSpotManager Instance;
-    public List<BuildingSpot> GetAllBuildingSpots() => _buildingSpots;
 
     [SerializeField] GameObject _buildingSpotPrefab;
-    [SerializeField] List<BuildingSpot> _buildingSpots = new List<BuildingSpot>();
-
+    [SerializeField] List<BuildingSpot> _activeBuildingSpots;
+    [SerializeField] BuildingSpotUI _buildingSpotUI;
+    [SerializeField] Transform _exitPoint;
     private void Awake()
     {
         Instance = this;
@@ -18,12 +18,12 @@ public class BuildingSpotManager : MonoBehaviour
 
     public BuildingSpot GetRandomSpot()
     {
-        return _buildingSpots[Random.Range(0, _buildingSpots.Count)];
+        return _activeBuildingSpots[Random.Range(0, _activeBuildingSpots.Count)];
     }
 
     public BuildingSpot FindSpotForCar()
     {
-        foreach (var spot in _buildingSpots)
+        foreach (var spot in _activeBuildingSpots)
         {
             if (spot.HasSpace)
             {
@@ -33,14 +33,16 @@ public class BuildingSpotManager : MonoBehaviour
         return null;
     }
 
-    public BuildingSpot AddNewBuildingSpot(Vector3 position)
+    public void AddNewBuildingSpot(BuildingSpot spot)
     {
-        var newSpot = Instantiate(_buildingSpotPrefab, position, Quaternion.identity);
-        var spotComponent = newSpot.GetComponent<BuildingSpot>();
-        if (spotComponent != null)
+        spot.SetExitPoint(_exitPoint);
+        if (!_activeBuildingSpots.Contains(spot))
         {
-            _buildingSpots.Add(spotComponent);
+            _activeBuildingSpots.Add(spot);
         }
-        return spotComponent;
+    }
+    public void ShowUI(BuildingSpot buildingSpot)
+    {
+        _buildingSpotUI.Initialize(buildingSpot);
     }
 }

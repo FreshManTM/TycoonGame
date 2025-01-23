@@ -5,7 +5,9 @@ using UnityEngine;
 [System.Serializable]
 public class BuildingSpotData 
 {
-        public int SpotID; 
-        public int AvailableCars;
-        public int RentFeePerSecond;
+    public int SpotID; 
+    public int AvailableCars;
+    public int UpgradeCost;
+    public int RentFeePerSecond;
+    public bool IsUnlocked;
 }
