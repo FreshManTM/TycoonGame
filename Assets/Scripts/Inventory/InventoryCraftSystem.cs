@@ -1,17 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 using static UnityEditor.Progress;
 
-public class InventorySystem : MonoBehaviour
+public class InventoryCraftSystem : MonoBehaviour
 {
+    public static InventoryCraftSystem Instance;
     [SerializeField] InventoryItemUI[] _inventoryItemsUI;
 
     Saver _saver;
-    private List<InventoryItem> _inventory = new List<InventoryItem>();
+    List<InventoryItem> _inventory = new List<InventoryItem>();
 
     private void Awake()
     {
+        Instance = this;
         _saver = Saver.Instance;
     }
 
@@ -35,8 +38,6 @@ public class InventorySystem : MonoBehaviour
         }
     }
 
-
-
     public void AddItem(string itemName, int quantity)
     {
         var item = _inventory.Find(i => i.ItemName == itemName);
@@ -54,6 +55,15 @@ public class InventorySystem : MonoBehaviour
         SaveInventory();
     }
 
+    public void AddRandomItem()
+    {
+        string[] allItems = new string[3] { "Engine", "Body", "Wheel"};
+        string item = allItems[Random.Range(0, allItems.Length)];
+        int quantity = 1;
+        if(item == "Wheel")
+            quantity = Random.Range(1, 3);
+        AddItem(item, quantity);
+    }
 
     public bool RemoveItem(string itemName, int quantity)
     {
@@ -73,6 +83,31 @@ public class InventorySystem : MonoBehaviour
         return false;
     }
 
+    public bool CraftCar()
+    {
+        var requiredParts = new Dictionary<string, int>
+        {
+            { "Engine", 1 },
+            { "Body", 1 },
+            { "Wheel", 4 }
+        };
+
+        foreach (var part in requiredParts)
+        {
+            if (GetItemQuantity(part.Key) < part.Value)
+            {
+                Debug.Log($"Not enough {part.Key} to craft a car.");
+                return false;
+            }
+        }
+
+        foreach (var part in requiredParts)
+        {
+            RemoveItem(part.Key, part.Value);
+        }
+        Debug.Log("Car crafted successfully!");
+        return true;
+    }
 
     public int GetItemQuantity(string itemName)
     {

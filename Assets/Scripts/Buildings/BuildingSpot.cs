@@ -6,17 +6,20 @@ using UnityEngine.EventSystems;
 
 public class BuildingSpot : MonoBehaviour
 {
-    #region PrivateProperties
+    #region SerrializedProperties
     [SerializeField] int _spotID;
-    [SerializeField] GameObject _carPrefab;
     [SerializeField] int _maxCars = 5; 
     [SerializeField] int _rentFeePerSecond = 1; 
-    [SerializeField] Transform[] _carSpawnPoints;
-    [SerializeField] Transform _rentPoint;
-    [SerializeField] GameObject _lockCover;
     [SerializeField] int _unlockCost = 1000;
     [SerializeField] int _upgradeCost = 1000; 
+    [SerializeField] float _itemDropChance = .2f;
     [SerializeField] bool _isUnlocked = false;
+    [SerializeField] Transform _rentPoint;
+    [SerializeField] Transform[] _carSpawnPoints;
+    [SerializeField] GameObject _carPrefab;
+    [SerializeField] GameObject _addObjects;
+    [SerializeField] GameObject _buildingObjects;
+
     #endregion
 
     #region PublicProperties
@@ -33,17 +36,21 @@ public class BuildingSpot : MonoBehaviour
     Queue<GameObject> _availableCars = new Queue<GameObject>();
     List<GameObject> _rentedCars = new List<GameObject>();
 
+    int _lastCarSpawnIndex;
+    InventoryCraftSystem _inventorySystem;
     ObjectPool _pool;
     Saver _saver;
 
     private void Start()
     {
+        _inventorySystem = InventoryCraftSystem.Instance;
         _pool = ObjectPool.Instance;
         _saver = Saver.Instance;
         if (!LoadBuildingSpotData() && _spotID == 0)
         {
             _isUnlocked = true;
-            _lockCover.SetActive(false);
+            _addObjects.SetActive(false);
+            _buildingObjects.SetActive(true);
             BuildingSpotManager.Instance.AddNewBuildingSpot(this);
             AddCar();
             SaveBuildingSpotData();
@@ -70,7 +77,8 @@ public class BuildingSpot : MonoBehaviour
         {
             CurrencyManager.Instance.SpendCurrency(_unlockCost);
             _isUnlocked = true;
-            _lockCover.SetActive(false);
+            _addObjects.SetActive(false);
+            _buildingObjects.SetActive(true);
             BuildingSpotManager.Instance.AddNewBuildingSpot(this);
 
             AddCar();
@@ -102,17 +110,17 @@ public class BuildingSpot : MonoBehaviour
             return false;
         }
     }
-
     public void AddCar()
     {
         if (HasSpace)
         {
             if (_carSpawnPoints.Length > _availableCars.Count)
             {
-                int spawnIndex = _availableCars.Count;
+                if(_lastCarSpawnIndex > _availableCars.Count + _rentedCars.Count)
+                    _lastCarSpawnIndex = 0;
 
-                var car = _pool.Spawn(_carPrefab, _carSpawnPoints[spawnIndex].position, _carPrefab.transform.rotation);
-
+                var car = _pool.Spawn(_carPrefab, _carSpawnPoints[_lastCarSpawnIndex].position, _carPrefab.transform.rotation);
+                _lastCarSpawnIndex++;
                 _availableCars.Enqueue(car);
             }
             else
@@ -125,13 +133,21 @@ public class BuildingSpot : MonoBehaviour
             Debug.LogWarning("No space available in this building spot!");
         }
     }
+    public void CraftCar()
+    {
+        if (_inventorySystem.CraftCar())
+        {
+            AddCar();
+            SaveBuildingSpotData();
+        }
+    }
 
     public GameObject RentCar()
     {
         if (HasAvailableCars)
         {
             var car = _availableCars.Dequeue();
-            car.SetActive(false);
+            _pool.Despawn(car);
             _rentedCars.Add(car);
             return car;
         }
@@ -144,6 +160,11 @@ public class BuildingSpot : MonoBehaviour
     {
         if (_rentedCars.Contains(car))
         {
+            if (Random.value <= _itemDropChance)
+            {
+                _inventorySystem.AddRandomItem();
+            }
+
             _rentedCars.Remove(car);
             AddCar();
         }
@@ -161,7 +182,8 @@ public class BuildingSpot : MonoBehaviour
 
                 if (_isUnlocked)
                 {
-                    _lockCover.SetActive(false);
+                    _addObjects.SetActive(false);
+                    _buildingObjects.SetActive(true);
                     BuildingSpotManager.Instance.AddNewBuildingSpot(this);
                 }
 

@@ -61,4 +61,8 @@ public class BuildingSpotUI : MonoBehaviour
         _upgradeButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Upgrade {_currentSpot.UpgradeCost}$";
     }
 
+    public void CraftCarButton()
+    {
+        _currentSpot.CraftCar();
+    }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] InventorySystem inventorySystem;
+    [SerializeField] InventoryCraftSystem inventorySystem;
     [SerializeField] TextMeshProUGUI _currency_Text;
 
     CurrencyManager _currencyManager;
@@ -32,7 +32,7 @@ public class UIManager : MonoBehaviour
     }
     public void CraftCar()
     {
-        inventorySystem.gameObject.GetComponent<CraftingSystem>().CraftCar();
+        inventorySystem.CraftCar();
     }
 
     public void ChangeTimeScale(float value)
@@ -42,6 +42,6 @@ public class UIManager : MonoBehaviour
 
     public void AddCar()
     {
-        _selectedBuildSpot.AddCar();
+        _selectedBuildSpot.CraftCar();
     }
 }
