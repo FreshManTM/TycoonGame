@@ -6,14 +6,26 @@ public class CustomerSpawner : MonoBehaviour
 {
     [SerializeField] GameObject _customerPrefab;
     [SerializeField] Transform _spawnPoint;
-    [SerializeField] float _spawnInterval = 5f;
+    [SerializeField] float _baseSpawnInterval = 3f;
 
     ObjectPool _pool;
+    BuildingSpotManager _buildingSpotManager;
     
     private void Start()
     {
         _pool = ObjectPool.Instance;
-        InvokeRepeating(nameof(SpawnCustomer), 1, _spawnInterval);
+        _buildingSpotManager = BuildingSpotManager.Instance;
+        StartCoroutine(ISpawnCustomer());
+    }
+
+    IEnumerator ISpawnCustomer()
+    {
+
+        int buildingSpotsAmount = _buildingSpotManager.BuildingSpotsAmount;
+        float adjustedInterval = Mathf.Lerp(_baseSpawnInterval, .5f, (float)buildingSpotsAmount / 6f);
+        yield return new WaitForSeconds(2);
+        SpawnCustomer();
+        StartCoroutine(ISpawnCustomer());
     }
 
     void SpawnCustomer()
@@ -23,10 +35,10 @@ public class CustomerSpawner : MonoBehaviour
         var customerAI = customerInstance.GetComponent<CustomerAI>();
         if (customerAI != null)
         {
-            int rentDuration = Random.Range(1, 5);
+            int rentDuration = Random.Range(3, 11);
             var customer = new Customer(rentDuration);
 
-            var buildingSpot = BuildingSpotManager.Instance.GetRandomSpot();
+            var buildingSpot = _buildingSpotManager.GetRandomSpot();
             if (buildingSpot != null)
             {
                 customerAI.Initialize(customer, buildingSpot);

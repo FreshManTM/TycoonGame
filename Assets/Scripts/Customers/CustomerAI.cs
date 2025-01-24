@@ -13,6 +13,7 @@ public class CustomerAI : MonoBehaviour
     GameObject _rentedCar;
     Transform _rentalPoint;
     Transform _exitPoint;
+    Renderer _renderer;
 
     enum CustomerState { MovingToRental, Renting, Leaving }
     CustomerState _currentState = CustomerState.MovingToRental;
@@ -25,6 +26,7 @@ public class CustomerAI : MonoBehaviour
         _rentalPoint = _assignedSpot.RentalPoint;
         _exitPoint = _assignedSpot.ExitPoint;
         _currentState = CustomerState.MovingToRental;
+        _renderer = GetComponent<Renderer>();
 
         MoveTo(_rentalPoint.position);
     }
@@ -99,7 +101,6 @@ public class CustomerAI : MonoBehaviour
         _currentState = CustomerState.Leaving;
         MoveTo(_exitPoint.position);
     }
-
 
     void DespawnCustomer()
     {

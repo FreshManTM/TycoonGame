@@ -12,7 +12,7 @@ public class BuildingSpot : MonoBehaviour
     [SerializeField] int _rentFeePerSecond = 1; 
     [SerializeField] int _unlockCost = 1000;
     [SerializeField] int _upgradeCost = 1000; 
-    [SerializeField] float _itemDropChance = .2f;
+    [SerializeField] float _itemDropChance = .3f;
     [SerializeField] bool _isUnlocked = false;
     [SerializeField] Transform _rentPoint;
     [SerializeField] Transform[] _carSpawnPoints;
@@ -61,7 +61,6 @@ public class BuildingSpot : MonoBehaviour
     {
         if (!EventSystem.current.IsPointerOverGameObject())
         {
-            print("clicked");
             BuildingSpotManager.Instance.ShowUI(this);
         }
     }
@@ -110,7 +109,7 @@ public class BuildingSpot : MonoBehaviour
             return false;
         }
     }
-    public void AddCar()
+    public bool AddCar()
     {
         if (HasSpace)
         {
@@ -122,6 +121,8 @@ public class BuildingSpot : MonoBehaviour
                 var car = _pool.Spawn(_carPrefab, _carSpawnPoints[_lastCarSpawnIndex].position, _carPrefab.transform.rotation);
                 _lastCarSpawnIndex++;
                 _availableCars.Enqueue(car);
+
+                return true;
             }
             else
             {
@@ -132,14 +133,17 @@ public class BuildingSpot : MonoBehaviour
         {
             Debug.LogWarning("No space available in this building spot!");
         }
+
+        return false;
     }
-    public void CraftCar()
+    public bool CraftCar()
     {
-        if (_inventorySystem.CraftCar())
+        if (_inventorySystem.CraftCar() && AddCar())
         {
-            AddCar();
             SaveBuildingSpotData();
+            return true;
         }
+        return false;
     }
 
     public GameObject RentCar()

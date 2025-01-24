@@ -1,38 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting.ReorderableList;
 using UnityEngine;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] InventoryCraftSystem inventorySystem;
     [SerializeField] TextMeshProUGUI _currency_Text;
+    [SerializeField] GameObject _tutorialPanel;
 
     CurrencyManager _currencyManager;
-    BuildingSpot _selectedBuildSpot;
+
     private void Start()
     {
         _currencyManager = CurrencyManager.Instance;
+        if (!PlayerPrefs.HasKey("FirstEntering"))
+        {
+            ChangeTimeScale(0);
+            _tutorialPanel.SetActive(true);
+            PlayerPrefs.SetInt("FirstEntering", 1);
+        }
     }
+
     private void Update()
     {
         _currency_Text.text = _currencyManager.Currency.ToString();
-    }
-
-    public void AddInventoryItem(string itemName)
-    {
-        inventorySystem.AddItem(itemName, 1);
-    }
-
-    public void RemoveInventoryItem(string itemName)
-    {
-        inventorySystem.RemoveItem(itemName, 1);
-
-    }
-    public void CraftCar()
-    {
-        inventorySystem.CraftCar();
     }
 
     public void ChangeTimeScale(float value)
@@ -40,8 +31,8 @@ public class UIManager : MonoBehaviour
         Time.timeScale = value;
     }
 
-    public void AddCar()
+    public void QuitButton()
     {
-        _selectedBuildSpot.CraftCar();
+        Application.Quit();
     }
 }

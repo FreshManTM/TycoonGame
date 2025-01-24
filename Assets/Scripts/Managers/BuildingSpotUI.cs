@@ -11,6 +11,9 @@ public class BuildingSpotUI : MonoBehaviour
     [SerializeField] GameObject _upgradeButton;
     [SerializeField] GameObject _addCarButton;
     [SerializeField] GameObject _selectedLight;
+    [SerializeField] ParticleSystem _confettiParticle;
+    [SerializeField] AudioSource _purchaseSound;
+
     BuildingSpot _currentSpot;
     public void Initialize(BuildingSpot buildingSpot)
     {
@@ -48,6 +51,9 @@ public class BuildingSpotUI : MonoBehaviour
     {
         if (_currentSpot.Unlock())
         {
+            _purchaseSound.Play();
+            PlayParticle(_currentSpot.transform.position);
+
             _unlockButton.SetActive(false);
             _upgradeButton.SetActive(true);
             _upgradeButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Upgrade {_currentSpot.UpgradeCost}$";
@@ -57,12 +63,29 @@ public class BuildingSpotUI : MonoBehaviour
 
     public void UpgradeButton()
     {
-        _currentSpot.Upgrade();
-        _upgradeButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Upgrade {_currentSpot.UpgradeCost}$";
+        if (_currentSpot.Upgrade())
+        {
+            _purchaseSound.Play();
+            PlayParticle(_currentSpot.transform.position);
+
+            _upgradeButton.GetComponentInChildren<TextMeshProUGUI>().text = $"Upgrade {_currentSpot.UpgradeCost}$";
+        }
     }
 
     public void CraftCarButton()
     {
-        _currentSpot.CraftCar();
+        if (_currentSpot.CraftCar())
+        {
+            _purchaseSound.Play();
+            PlayParticle(_currentSpot.transform.position);
+        }
+        
+    }
+
+    void PlayParticle(Vector3 pos)
+    {
+        _confettiParticle.gameObject.transform.position = pos;
+        _confettiParticle.gameObject.SetActive(true);
+        _confettiParticle.Play();
     }
 }

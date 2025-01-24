@@ -6,10 +6,13 @@ public class BuildingSpotManager : MonoBehaviour
 {
     public static BuildingSpotManager Instance;
 
-    [SerializeField] GameObject _buildingSpotPrefab;
-    [SerializeField] List<BuildingSpot> _activeBuildingSpots;
     [SerializeField] BuildingSpotUI _buildingSpotUI;
     [SerializeField] Transform _exitPoint;
+
+    [SerializeField]List<BuildingSpot> _activeBuildingSpots = new List<BuildingSpot>();
+
+    public int BuildingSpotsAmount => _activeBuildingSpots.Count;
+ 
     private void Awake()
     {
         Instance = this;

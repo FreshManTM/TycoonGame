@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Rendering;
-using static UnityEditor.Progress;
 
 public class InventoryCraftSystem : MonoBehaviour
 {
     public static InventoryCraftSystem Instance;
+
     [SerializeField] InventoryItemUI[] _inventoryItemsUI;
+    [SerializeField] RectTransform _inventoryIcon;
 
     Saver _saver;
     List<InventoryItem> _inventory = new List<InventoryItem>();
@@ -51,7 +51,7 @@ public class InventoryCraftSystem : MonoBehaviour
         }
 
         UpdateUI(itemName);
-
+        StartCoroutine(ShakeIcon());
         SaveInventory();
     }
 
@@ -61,7 +61,7 @@ public class InventoryCraftSystem : MonoBehaviour
         string item = allItems[Random.Range(0, allItems.Length)];
         int quantity = 1;
         if(item == "Wheel")
-            quantity = Random.Range(1, 3);
+            quantity = Random.Range(2, 5);
         AddItem(item, quantity);
     }
 
@@ -125,7 +125,28 @@ public class InventoryCraftSystem : MonoBehaviour
                 itemUI.SetQuantityUI(_inventory.Find(i => i.ItemName == itemUI.GetName()).Quantity);
         }
     }
+    IEnumerator ShakeIcon()
+    {
+        float shakeDuration = 1f;
+        float shakeAngle = 10f;
 
+        Quaternion originalRotation = Quaternion.Euler(Vector3.zero);
+        float elapsedTime = 0f;
+
+        while (elapsedTime < shakeDuration)
+        {
+            float dampenedAngle = shakeAngle * (1f - (elapsedTime / shakeDuration));
+            float zRotation = Random.Range(-dampenedAngle, dampenedAngle);
+
+            _inventoryIcon.localRotation = Quaternion.Euler(0, 0, zRotation);
+
+            elapsedTime += Time.deltaTime;
+
+            yield return null;
+        }
+
+        _inventoryIcon.localRotation = originalRotation;
+    }
     void SaveInventory()
     {
         PlayerData data = _saver.LoadInfo();
